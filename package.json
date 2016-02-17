@@ -1,0 +1,9 @@
+{
+  "name": "unwind",
+  "version": "1.0.0",
+  "description": "Lisp interpreter in JavaScript",
+  "main": "unwind.js",
+  "dependencies": {
+    "lodash": "^4.4.0"
+  }
+}
