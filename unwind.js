@@ -34,7 +34,13 @@ var apply = function(proc, args, env) {
     } else {
         var params = proc[1];
         var body = proc[2];
-        var newEnv = _.merge(env, createObj_(params, args));
+        var funcEnv = proc[3];
+        var lowestPrecedenceEnv = env;
+        var middlePrecedenceEnv = funcEnv
+        var highestPrcedenceEnv =  createObj_(params, args);
+
+
+        var newEnv = merge_(lowestPrecedenceEnv, middlePrecedenceEnv, highestPrcedenceEnv);
 
         return unwind(body, newEnv);
     }
@@ -155,6 +161,14 @@ var createObj_ = function(keys, values) {
         result[key] = value;
     }
     return result;
+};
+
+
+var merge_ = function() {
+    return _.reduce(arguments, function(mergedEnv, env) {
+        // TODO: no cloning
+        return _.merge(_.clone(mergedEnv), _.clone(env));
+    });
 };
 
 
