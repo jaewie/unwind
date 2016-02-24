@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var readline = require('readline');
 
 
 var unwind = function(exp, env) {
@@ -170,3 +171,27 @@ var getStandardEnv = function() {
         'map': _.map
     };
 };
+
+
+var repl = function() {
+    var rl = readline.createInterface(process.stdin, process.stdout);
+    var env = getStandardEnv();
+
+    rl.setPrompt('> ');
+    rl.prompt();
+
+    rl.on('line', function(line) {
+
+        var val = unwind(parse(line), env);
+        if (!_.isUndefined(val)) {
+            console.log(val);
+        }
+
+        rl.prompt();
+    }).on('close',function(){
+        process.exit(0);
+    });
+
+}
+
+repl();
