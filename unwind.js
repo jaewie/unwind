@@ -4,8 +4,7 @@ var readline = require('readline');
 
 var unwind = function(exp, env) {
     if (isVariable_(exp)) {
-        return env[exp];
-
+        return findVar_(env, exp);
     } else if (isSelfEvaluating_(exp)) {
         return exp;
 
@@ -35,12 +34,9 @@ var apply = function(proc, args, env) {
         var params = proc[1];
         var body = proc[2];
         var funcEnv = proc[3];
-        var lowestPrecedenceEnv = env;
-        var middlePrecedenceEnv = funcEnv
-        var highestPrcedenceEnv =  createObj_(params, args);
 
-
-        var newEnv = merge_(lowestPrecedenceEnv, middlePrecedenceEnv, highestPrcedenceEnv);
+        var newEnv = createObj_(params, args);
+        newEnv.__parent = funcEnv;
 
         return unwind(body, newEnv);
     }
@@ -77,7 +73,7 @@ var parse = function(program) {
 
 
 var tokenize_ = function(program) {
-    var tokens =  replaceAll(replaceAll(program, '(', ' ( '), ')', ' ) ').split(' ');
+    var tokens =  replaceAll_(replaceAll_(program, '(', ' ( '), ')', ' ) ').split(' ');
     return _.filter(tokens, _.identity); // Remove empty strings
 };
 
@@ -147,7 +143,7 @@ var primitive_ = function(token) {
 };
 
 
-var replaceAll = function(target, search, replacement) {
+var replaceAll_ = function(target, search, replacement) {
     return target.split(search).join(replacement);
 };
 
@@ -163,12 +159,13 @@ var createObj_ = function(keys, values) {
     return result;
 };
 
+var findVar_ = function(env, key) {
+    if (_.has(env, key)) {
+        return env[key]
 
-var merge_ = function() {
-    return _.reduce(arguments, function(mergedEnv, env) {
-        // TODO: no cloning
-        return _.merge(_.clone(mergedEnv), _.clone(env));
-    });
+    } else if (_.has(env, '__parent')) {
+        return findVar_(env.__parent, key);
+    }
 };
 
 
